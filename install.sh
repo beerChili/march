@@ -133,7 +133,10 @@ pacstrap -K /mnt \
 	base base-devel linux linux-firmware \
 	amd-ucode nvidia-open \
 	iwd neovim sbctl sudo \
-	bash-completion fd fzf git less man-db man-pages openssh polkit
+	bash-completion fd fzf git less man-db man-pages openssh \
+    cups pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
+    alacritty firefox fuzzel mako sway swaybg swayidle ttf-ibm-plex wl-clipboard #\
+#   grim slurp sway-contrib xdg-desktop-portal xdg-desktop-portal-wlr
 
 echo "Configuring system..."
 sed -i '/^OPTIONS=/s/\<debug\>/!debug/' /mnt/etc/makepkg.conf
@@ -241,43 +244,37 @@ cat >"/mnt/home/$USERNAME/post_install.sh" <<'SCRIPT'
 #!/usr/bin/env bash
 set -euo pipefail
 
-mkdir -p "$HOME/.aur" "$HOME/.config" "$HOME/dnld" "$HOME/docs" "$HOME/code/prj" "$HOME/code/src"
+mkdir -p "$HOME/.config" "$HOME/Downloads" "$HOME/Documents" "$HOME/Pictures" "$HOME/Projects" 
 cat >"$HOME/.config/user-dirs.dirs" <<'EOF'
-XDG_DOWNLOAD_DIR="$HOME/dnld"
-XDG_DOCUMENTS_DIR="$HOME/docs"
+XDG_DOCUMENTS_DIR="$HOME/Documents"
+XDG_DOWNLOAD_DIR="$HOME/Downloads"
+XDG_PICTURES_DIR="$HOME/Pictures"
+XDG_PROJECTS_DIR="$HOME/Projects"
 EOF
 
 ssh-keygen -t ed25519
+systemctl enable --user ssh-agent.service
 cat ~/.ssh/id_ed25519.pub
 read -rp "Add key to GitHub and type CONTINUE " confirm
 [[ "$confirm" == "CONTINUE" ]] || exit 1
 
-git clone --bare git@github.com:beerChili/.dot.git "$HOME/code/prj/dot"
+git clone --bare git@github.com:beerChili/dot.git "$HOME/Projects/dot"
+rm -f "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.bash_logout"
+git --git-dir="$HOME/Projects/dot" --work-tree="$HOME" checkout
 
-rm -f "$HOME/.bashrc" \
-      "$HOME/.bash_profile" \
-      "$HOME/.bash_logout"
-
-git --git-dir="$HOME/code/prj/dot" \
-    --work-tree="$HOME" \
-    checkout
-
-git --git-dir="$HOME/code/prj/dot" \
-    --work-tree="$HOME" \
-    config --local status.showUntrackedFiles no
-
-git clone https://aur.archlinux.org/aurutils.git "$HOME/code/src/aurutils"
-cd "$HOME/code/src/aurutils"
-makepkg -si
-
+git clone https://aur.archlinux.org/aurutils.git /tmp/aurutils
+makepkg -si -p /tmp/aurutils/PKGBUILD
+rm -rf /tmp/aurutils
 sudo tee -a /etc/pacman.conf >/dev/null <<EOF
-[local]
+[aur]
 SigLevel = Optional TrustAll
-Server = file://$HOME/.aur
+Server = file:///var/lib/aur
 EOF
-
-repo-add "$HOME/.aur/aur.db.tar"
-aur repo local
+sudo mkdir -p /var/lib/aur
+sudo chown "$USER:$USER" /var/lib/aur
+repo-add /var/lib/aur/aur.db.tar
+aur repo aur
+aur sync aurutils 
 
 reboot
 SCRIPT
