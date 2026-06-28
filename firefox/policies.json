@@ -1,0 +1,87 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableFirefoxAccounts": true,
+    "BrowserDataBackup": {
+        "AllowBackup": false,
+        "AllowRestore": false
+    },
+
+    "AIControls": {
+      "Default": {
+        "Value": "blocked",
+        "Locked": true
+      }
+    },
+
+    "EnableTrackingProtection": {
+      "Value": true,
+      "Locked": true,
+      "Cryptomining": true,
+      "Fingerprinting": true
+    },
+
+    "FirefoxSuggest": {
+      "WebSuggestions": false,
+      "SponsoredSuggestions": false,
+      "ImproveSuggest": false,
+      "Locked": true
+    },
+
+    "SearchSuggestEnabled": false,
+
+    "AutofillAddressEnabled": false,
+    "AutofillCreditCardEnabled": false,
+    "OfferToSaveLogins": false,
+    "PasswordManagerEnabled": false,
+
+    "FirefoxHome": {
+      "Search": true,
+      "Weather": false,
+      "TopSites": false,
+      "SponsoredTopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "Stories": false,
+      "SponsoredPocket": false,
+      "SponsoredStories": false,
+      "Snippets": false,
+      "Locked": true
+    },
+
+    "NoDefaultBookmarks": true,
+    "DisableProfileImport": true,
+    "DontCheckDefaultBrowser": true,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "SkipTermsOfUse": true,
+
+    "DisableFirefoxScreenshots": true,
+    "DisableSetDesktopBackground": true,
+
+    "DisplayBookmakrsToolbar": "newtab",
+
+    "SearchEngines": {
+      "Remove": [
+        "Bing",
+        "Ecosia",
+        "Perplexity",
+        "Wikipedia (en)"
+      ],
+      "Default": "Google",
+      "PreventInstalls": true
+    },
+
+    "ExtensionSettings": {
+      "*": {
+        "installation_mode": "blocked"
+      },
+      "{d634138d-c276-4fc8-924b-40a0ea21d284}": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/1password-x-password-manager/latest.xpi"
+      }
+    }
+  }
+}
