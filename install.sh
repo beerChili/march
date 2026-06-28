@@ -134,9 +134,9 @@ pacstrap -K /mnt \
 	amd-ucode nvidia-open \
 	iwd neovim sbctl sudo \
 	bash-completion fd fzf git less man-db man-pages openssh vifm \
-    cups pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
-    alacritty firefox fuzzel mako sway swaybg swayidle ttf-ibm-plex wl-clipboard #\
-#   grim slurp sway-contrib xdg-desktop-portal xdg-desktop-portal-wlr
+	cups pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
+	alacritty firefox fuzzel grim mako slurp sway sway-contrib swaybg swayidle ttf-ibm-plex wl-clipboard \
+	shfmt
 
 echo "Configuring system..."
 sed -i '/^OPTIONS=/s/\<debug\>/!debug/' /mnt/etc/makepkg.conf
@@ -167,6 +167,9 @@ arch-chroot /mnt systemctl enable iwd.service
 ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 arch-chroot /mnt systemctl enable systemd-resolved.service
 
+mkdir -p /mnt/var/lib/iwd
+cp -a /var/lib/iwd/. /mnt/var/lib/iwd/
+
 echo "Setting up bootloader..."
 sed -i 's/^HOOKS=.*/HOOKS=(base systemd autodetect microcode modconf kms keyboard keymap sd-vconsole block sd-encrypt filesystems fsck)/' /mnt/etc/mkinitcpio.conf
 cat >/mnt/etc/mkinitcpio.d/linux.preset <<'EOF'
@@ -189,10 +192,6 @@ echo "Set a password for root user"
 arch-chroot /mnt passwd
 echo "Set a password for $USERNAME"
 arch-chroot /mnt passwd "$USERNAME"
-
-echo "Finalizing networking setup..."
-mkdir -p /mnt/var/lib/iwd
-cp -a /var/lib/iwd/. /mnt/var/lib/iwd/
 
 echo "Generating post-install scripts..."
 
@@ -259,6 +258,7 @@ cat ~/.ssh/id_ed25519.pub
 git clone --bare https://github.com/beerChili/dot.git "$HOME/Projects/dot"
 rm -f "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.bash_logout"
 git --git-dir="$HOME/Projects/dot" --work-tree="$HOME" checkout
+git --git-dir="$HOME/Projects/dot" --work-tree="$HOME" remote set-url origin git@github.com:beerChili/dot.git
 
 git clone https://aur.archlinux.org/aurutils.git /tmp/aurutils
 CWD=$(pwd) && cd /tmp/aurutils && makepkg -si && cd "$CWD" && unset CWD && rm -rf /tmp/aurutils 
@@ -273,9 +273,6 @@ repo-add /var/lib/aur/aur.db.tar
 sudo pacman -Sy
 aur repo aur
 aur sync aurutils 
-
-curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --import
-aur sync 1password
 
 rm -- "\$0"
 reboot
