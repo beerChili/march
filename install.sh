@@ -133,7 +133,7 @@ pacstrap -K /mnt \
 	base base-devel linux linux-firmware \
 	amd-ucode nvidia-open \
 	iwd neovim sbctl sudo \
-	bash-completion fd fzf git less man-db man-pages openssh \
+	bash-completion fd fzf git less man-db man-pages openssh vifm \
     cups pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
     alacritty firefox fuzzel mako sway swaybg swayidle ttf-ibm-plex wl-clipboard #\
 #   grim slurp sway-contrib xdg-desktop-portal xdg-desktop-portal-wlr
@@ -255,16 +255,13 @@ EOF
 ssh-keygen -t ed25519
 systemctl enable --user ssh-agent.service
 cat ~/.ssh/id_ed25519.pub
-read -rp "Add key to GitHub and type CONTINUE " confirm
-[[ "$confirm" == "CONTINUE" ]] || exit 1
 
-git clone --bare git@github.com:beerChili/dot.git "$HOME/Projects/dot"
+git clone --bare https://github.com/beerChili/dot.git "$HOME/Projects/dot"
 rm -f "$HOME/.bashrc" "$HOME/.bash_profile" "$HOME/.bash_logout"
 git --git-dir="$HOME/Projects/dot" --work-tree="$HOME" checkout
 
 git clone https://aur.archlinux.org/aurutils.git /tmp/aurutils
-makepkg -si -p /tmp/aurutils/PKGBUILD
-rm -rf /tmp/aurutils
+CWD=$(pwd) && cd /tmp/aurutils && makepkg -si && cd "$CWD" && unset CWD && rm -rf /tmp/aurutils 
 sudo tee -a /etc/pacman.conf >/dev/null <<EOF
 [aur]
 SigLevel = Optional TrustAll
@@ -273,14 +270,19 @@ EOF
 sudo mkdir -p /var/lib/aur
 sudo chown "$USER:$USER" /var/lib/aur
 repo-add /var/lib/aur/aur.db.tar
+sudo pacman -Sy
 aur repo aur
 aur sync aurutils 
 
+curl -sS https://downloads.1password.com/linux/keys/1password.asc | gpg --import
+aur sync 1password
+
+rm -- "\$0"
 reboot
 SCRIPT
 
 chmod +x /mnt/home/"$USERNAME"/*.sh
-arch-chroot /mnt chown "$USERNAME:$USERNAME" /home/"$USERNAME"/*.sh
+arch-chroot /mnt bash -c "chown "$USERNAME:$USERNAME" /home/"$USERNAME"/*.sh"
 
 echo "DONE!"
 echo "Unmounting..."
