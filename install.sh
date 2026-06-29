@@ -133,10 +133,9 @@ pacstrap -K /mnt \
 	base base-devel linux linux-firmware \
 	amd-ucode nvidia-open \
 	iwd neovim sbctl sudo \
-	bash-completion fd fzf git less man-db man-pages openssh vifm \
+	bash-completion fd fzf git less lua-language-server man-db man-pages ollama ollama-cuda openssh ripgrep shfmt vifm \
 	cups pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
-	alacritty firefox fuzzel grim mako slurp sway sway-contrib swaybg swayidle ttf-ibm-plex wl-clipboard \
-	shfmt
+	alacritty firefox fuzzel grim mako slurp sway sway-contrib swaybg swayidle ttf-ibm-plex wl-clipboard
 
 echo "Configuring system..."
 sed -i '/^OPTIONS=/s/\<debug\>/!debug/' /mnt/etc/makepkg.conf
@@ -273,6 +272,20 @@ repo-add /var/lib/aur/aur.db.tar
 sudo pacman -Sy
 aur repo aur
 aur sync aurutils 
+
+cat > "$HOME/.config/systemd/user/ollama.service" <<'EOF'
+[Unit]
+Description=Ollama
+
+[Service]
+ExecStart=/usr/bin/ollama serve
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+EOF
+systemctl --user daemon-reload
+systemctl --user enable --now ollama
 
 rm -- "\$0"
 reboot
