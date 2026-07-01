@@ -1,1 +1,1 @@
-`curl -fsSL https://github.com/beerChili/march/blob/main/install.sh | bash`
+`curl -fsSL https://raw.githubusercontent.com/beerChili/march/refs/heads/main/install.sh | bash`
