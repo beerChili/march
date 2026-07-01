@@ -132,7 +132,7 @@ echo "Installing Arch..."
 pacstrap -K /mnt \
 	base base-devel linux linux-firmware \
 	amd-ucode nvidia-open \
-	iwd neovim sbctl sudo \
+	iwd neovim polkit sbctl sudo \
 	bash-completion fd fzf git less lua-language-server man-db man-pages ollama ollama-cuda openssh ripgrep shfmt vifm \
 	cups pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber \
 	alacritty firefox fuzzel grim mako slurp sway sway-contrib swaybg swayidle ttf-ibm-plex wl-clipboard
